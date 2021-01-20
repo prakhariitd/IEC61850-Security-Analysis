@@ -5,8 +5,10 @@ class DecoderError(Exception):
 
 def unpack_varint(data, length):
     """ Decodes a variable length integer """
+    # print ("Lenngth in Unpack == ",length)
+    # print (data)
     if length == 1: 
-        data = struct.unpack('!h', '\x00' + data)[0]
+        data = struct.unpack('!h', '\x00'.encode() + data)[0]
     elif length == 2:
         data = struct.unpack('!h', data)[0]
     elif length == 4:
@@ -16,9 +18,16 @@ def unpack_varint(data, length):
     return data
 
 def encoder(data, tagmap):
-    keys = tagmap.keys()
+    # print ("got herer")
+    print ()
+    # print (tagmap)
+    keys = []
+    for key in tagmap:
+        keys.append(key)
+    # print (tagmap[(128,0,6)])
+    # keys = tagmap.keys()
     keys.sort()
-    packed_data = ''
+    packed_data = b''
     # print (keys)
     # print (tagmap)
 
@@ -28,17 +37,21 @@ def encoder(data, tagmap):
         except KeyError:
             continue
 
+        # print (key)
         tag = key[0] + key[1] + key[2]
         tag = struct.pack('!B', tag)
 
-        if (tagmap[key][0]=="allData"):
-            package = attr
-        else:
-            package = attr.pack()
+        # if (tagmap[key][0]=="allData"):
+        #     package = attr
+        # else:
+        package = attr.pack()
+        # print (tag)
+        # print (package)
         if len(package) < 128:
             length = struct.pack('!B', len(package))
         else:  # HACK.. this will only support lengths up to 254.
             length = struct.pack('!BB', 129, len(package))
+        # print (length)
         packed_data += tag + length + package
         #print repr(tag + length + package)
 
@@ -82,17 +95,17 @@ def decoder(data, tagmap, ignore_errors=True, decode_as_list=False):
             data = data[n:] 
         try:
             name = tagmap[(tag_class, tag_format, tag_id)][0]
-            if (name=='allData'):
-                val = data[:length] # exception handling?
-                # print (val)
-                # val.tag = (tag_class, tag_format, tag_id)
-                # continue
-            else:
-                inst = tagmap[(tag_class, tag_format, tag_id)][1]
-                # print (data[:length])
-                val = inst(data[:length], length) # exception handling?
-                # print (val)
-                val.tag = (tag_class, tag_format, tag_id)
+            # if (name=='allData'):
+            #     val = data[:length] # exception handling?
+            #     # print (val)
+            #     # val.tag = (tag_class, tag_format, tag_id)
+            #     # continue
+            # else:
+            inst = tagmap[(tag_class, tag_format, tag_id)][1]
+        # print (data[:length])
+            val = inst(data[:length], length) # exception handling?
+            # print (val)
+            val.tag = (tag_class, tag_format, tag_id)
         except KeyError:
             if ignore_errors:
                 print ('Unfound tag %s,%s,%s' % (tag_class, tag_format, tag_id))

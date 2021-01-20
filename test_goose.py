@@ -3,24 +3,24 @@ import goose
 from time import sleep
 
 packet = None
-a = rdpcap("wireshark10.pcap")
+a = rdpcap("wireshark12.pcap")
 for i in a:
 	try:
         # if i.type == 0x88b8:
 # your_iface = "enp3s0"
 # i = sniff(iface=your_iface, count=1, filter = "udp and host 10.220.64.207 and port 49153")
-# i = i[0]
+		# i = i[0]
 		# i.show()
 		# print (len(i.load))
 		# print (len(i))
 	# print (i.load)
 
 		g = goose.GOOSE(i.load)
-		pl1 = i.load[:40]
-		# print (type(pl1))
+		pl1 = i.load[:11]
+		# print (len(pl1))
 		# print (len(i.load[:39]))
 		# print (repr(g.load))
-		gpdu = goose.GOOSEPDU(g.load[31:])
+		gpdu = goose.GOOSEPDU(g.load[3:])
 		print (gpdu.__dict__)
 		for st in range(15,20):
 			gpdu.__dict__['stNum'].data = st
@@ -31,9 +31,11 @@ for i in a:
 				# print (gpdu.__dict__)
 				# print (pl)
 				pl = pl1 + pl
-				i[UDP].remove_payload()
+				# i[UDP].remove_payload()
+				# i[UDP].add_payload(pl)
 				# i.show()
-				i[UDP].add_payload(pl)
+				i.remove_payload()
+				i.add_payload(pl)
 				i.show()
 				# print (len(i.load))
 				# print (len(i))

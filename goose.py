@@ -42,7 +42,7 @@ class VisibleString(ASNType):
         self.data = data
 
     def __repr__(self):
-        return "'" + self.data + "'"
+        return self.data.decode("utf-8")
 
     def pack(self):
         return self.data
@@ -150,15 +150,17 @@ class Data(object):
         """ This is a hack, and should probably be integrated in to
             the BER encoder at some point.
         """
-        packed_data = ''
+        packed_data = b''
         for i in self.data:
             tag = i.tag[0] + i.tag[1] + i.tag[2]
             tag = struct.pack('!B', tag)
+            # print ("Packed tag : ",tag)
             package = i.pack()
             if len(package) < 128:
                 length = struct.pack('!B', len(package))
             else: # HACK.. this will only support lengths up to 254.
                 length = struct.pack('!BB', 129, len(package))
+            # print (tag, length, package)
             packed_data += tag + length + package
 
         return packed_data
