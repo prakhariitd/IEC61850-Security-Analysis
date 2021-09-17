@@ -5,7 +5,7 @@ import hashlib
 from cryptography.fernet import Fernet
 # from time import sleep
 
-your_iface = "enp3s0"
+your_iface = "wlp2s0"
 broad_ip = "224.0.0.0"
 
 prev_stnum = -1
@@ -23,7 +23,8 @@ while(True):
 	# print (type(t))
 	packet = t[0]
 	i = packet[UDP].payload
-	extension = int(i.load[6:8])
+	# extension = int(i.load[6:8])
+	extension = 1
 	apdu = i.load[11:-1*extension]
 	mac = i.load[-1*extension:]
 

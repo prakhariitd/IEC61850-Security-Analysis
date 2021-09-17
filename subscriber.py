@@ -2,7 +2,7 @@ from scapy.all import *
 import goose
 # from time import sleep
 
-your_iface = "enp3s0"
+your_iface = "wlp2s0"
 broad_ip = "224.0.0.0"
 
 prev_stnum = -1
@@ -23,7 +23,19 @@ while(True):
 	# print (type(pl1))
 	# print (repr(g.load))
 	gpdu = goose.GOOSEPDU(g.load[31:])
+	print ("The R-GOOSE payload is decoded as- ")
 	print (gpdu.__dict__)
+	try:
+		stnum = gpdu.__dict__['stNum'].data
+	except Exception as e:
+		print ("************************************")
+		print()
+		print ("         DECODING ERROR")
+		print()
+		print ("Key not found : ", e)
+		print()
+		print ("************************************")
+	
 
 	stnum = gpdu.__dict__['stNum'].data
 	if (stnum != prev_stnum):

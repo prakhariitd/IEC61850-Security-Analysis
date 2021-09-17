@@ -5,16 +5,17 @@ from cryptography.fernet import Fernet
 import hmac
 import hashlib
 
+your_iface = "wlp2s0"
 packet = None
-a = rdpcap("wireshark12.pcap")
+a = rdpcap("wireshark10.pcap") #wireshark12 for GOOSE
 for packet in a:
 	try:
         # if i.type == 0x88b8:
 		# your_iface = "enp3s0"
 		# i = sniff(iface=your_iface, count=1, filter = "udp and host 10.220.64.207 and port 49153")
 
-		i = packet # when GOOSE
-		# i = packet[UDP].payload #when R-GOOSE
+		# i = packet # when GOOSE
+		i = packet[UDP].payload #when R-GOOSE
 		pl1 = i.load[:11]
 		apdu = i.load[11:]
 		# print (len(pl1))
@@ -34,17 +35,17 @@ for packet in a:
 		pl = pl1[:6]+bytes(h.digest_size)+pl1[8:]+bytes(ciphertext)+h.digest()
 
 		#GOOSE
-		i.remove_payload()
-		i.add_payload(pl)
-		i.show()
-		packet_send = i
+		# i.remove_payload()
+		# i.add_payload(pl)
+		# i.show()
+		# packet_send = i
 
 		#R-GOOSE
-		# packet[UDP].remove_payload()
-		# packet[UDP].add_payload(pl)
-		# packet.show()
-		# packet_send = packet
-		sendp(packet_send, iface="enp3s0")
+		packet[UDP].remove_payload()
+		packet[UDP].add_payload(pl)
+		packet.show()
+		packet_send = packet
+		sendp(packet_send, iface=your_iface)
 		# i[UDP].remove_payload()
 		# i[UDP].add_payload(pl)
 

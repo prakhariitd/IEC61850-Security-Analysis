@@ -3,7 +3,8 @@ import goose
 from time import sleep
 
 packet = None
-a = rdpcap("wireshark12.pcap")
+your_iface = "wlp2s0"
+a = rdpcap("wireshark10.pcap")
 for i in a:
 	try:
         # if i.type == 0x88b8:
@@ -14,13 +15,14 @@ for i in a:
 		# print (len(i.load))
 		# print (len(i))
 	# print (i.load)
-
+		i.show();
 		g = goose.GOOSE(i.load)
 		pl1 = i.load[:11]
 		# print (len(pl1))
 		# print (len(i.load[:39]))
 		# print (repr(g.load))
-		gpdu = goose.GOOSEPDU(g.load[3:])
+		gpdu = goose.GOOSEPDU(g.load[31:])
+		print ("The R-GOOSE payload is decoded as- ")
 		print (gpdu.__dict__)
 		for st in range(15,20):
 			gpdu.__dict__['stNum'].data = st
@@ -31,16 +33,16 @@ for i in a:
 				# print (gpdu.__dict__)
 				# print (pl)
 				pl = pl1 + pl
-				# i[UDP].remove_payload()
-				# i[UDP].add_payload(pl)
+				i[UDP].remove_payload()
+				i[UDP].add_payload(pl)
 				# i.show()
-				i.remove_payload()
-				i.add_payload(pl)
-				i.show()
+				# i.remove_payload()
+				# i.add_payload(pl)
+				# i.show()
 				# print (len(i.load))
 				# print (len(i))
 				packet = i
-				sendp(packet, iface="enp3s0")
+				sendp(packet, iface=your_iface)
 				sleep(0.02)
 	# break
 	except AttributeError:
